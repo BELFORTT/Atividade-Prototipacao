@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Ovos do Litoral Sul - Finalizado</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .page { display: none; flex-direction: column; height: 100vh; }
+        .page.active { display: flex; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="max-w-md mx-auto bg-white min-h-screen shadow-2xl flex flex-col relative overflow-hidden">
+        
+        <div id="home" class="page active">
+            <header class="p-4 border-b flex justify-between items-center bg-white">
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Produtora Litoral Sul</span>
+                    <span class="text-xs font-medium text-gray-500 italic">Paraíba, Brasil</span>
+                </div>
+                <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center border border-amber-200 text-xs text-amber-900 font-bold">PB</div>
+            </header>
+            
+            <div class="p-4 overflow-y-auto no-scrollbar flex-1">
+                <div class="bg-amber-800 rounded-2xl p-5 text-white mb-6 relative shadow-lg">
+                    <h2 class="text-xl font-bold italic text-amber-200">Clube do Ovo 🥚</h2>
+                    <p class="text-xs opacity-90 mt-1 uppercase tracking-tighter">24 ovos = 5% OFF | 48 ovos = 10% OFF</p>
+                    <div class="mt-4 bg-black/20 h-2 rounded-full overflow-hidden">
+                        <div id="barra-home" class="bg-amber-400 h-full transition-all duration-700" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <h3 class="font-bold mb-3 text-gray-800 flex items-center gap-2 uppercase text-[11px] tracking-wider">Cartelas em Destaque</h3>
+                <div class="grid grid-cols-1 gap-3 mb-6" id="grid-home-pacotes"></div>
+
+                <h3 class="font-bold mb-3 text-gray-800 uppercase text-[11px] tracking-wider">Unidades Avulsas</h3>
+                <div class="grid grid-cols-2 gap-4" id="grid-home-unidades"></div>
+            </div>
+        </div>
+
+        <div id="busca" class="page">
+            <div class="p-4 border-b bg-white">
+                <input type="text" placeholder="Pesquisar..." class="w-full bg-gray-100 p-3 rounded-xl text-sm outline-none border focus:border-amber-600">
+                <div class="flex gap-2 mt-4">
+                    <button onclick="filtrar('todos')" class="filter-btn px-4 py-1 bg-amber-800 text-white rounded-full text-[10px] font-bold uppercase transition-all">Todos</button>
+                    <button onclick="filtrar('vermelho')" class="filter-btn px-4 py-1 bg-gray-100 text-gray-500 rounded-full text-[10px] font-bold uppercase transition-all">Vermelhos</button>
+                    <button onclick="filtrar('branco')" class="filter-btn px-4 py-1 bg-gray-100 text-gray-500 rounded-full text-[10px] font-bold uppercase transition-all">Brancos</button>
+                </div>
+            </div>
+            <div class="p-4 grid grid-cols-2 gap-4 overflow-y-auto no-scrollbar flex-1" id="grid-produtos"></div>
+        </div>
+
+        <div id="pedidos" class="page">
+            <div class="p-4 border-b bg-white"><h1 class="font-bold text-lg tracking-tight">Meus Pedidos</h1></div>
+            <div id="pedidos-lista" class="p-4 space-y-4 overflow-y-auto no-scrollbar flex-1">
+                <div class="bg-white p-4 rounded-2xl border shadow-sm border-l-4 border-l-green-500 opacity-60">
+                    <div class="flex justify-between items-start mb-1">
+                        <p class="font-bold text-sm">Cartela de 30 Ovos</p>
+                        <span class="text-green-600 text-[9px] font-bold uppercase">Entregue</span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mb-3 uppercase">Pedido #8821 • 29/01/2026</p>
+                    <button class="w-full py-2 bg-stone-100 text-stone-600 rounded-xl text-[10px] font-bold border hover:bg-stone-200">REPETIR</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="sacola" class="page">
+            <div class="p-4 border-b flex justify-between items-center bg-white">
+                <h1 class="font-bold text-lg">Minha Cesta</h1>
+                <button onclick="limparCarrinho()" class="text-red-500 text-[10px] font-bold uppercase">Limpar</button>
+            </div>
+            <div id="itens-sacola" class="p-4 space-y-3 overflow-y-auto flex-1 no-scrollbar"></div>
+            <div class="p-5 bg-stone-50 border-t space-y-4 rounded-t-3xl shadow-2xl">
+                <div class="flex gap-2 p-1 bg-gray-200 rounded-2xl">
+                    <button id="opt-casa" onclick="tipoEntrega(true)" class="flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition bg-white shadow text-amber-900">🏠 Delivery (+R$5)</button>
+                    <button id="opt-fazenda" onclick="tipoEntrega(false)" class="flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition text-gray-500">🚜 Retirada (Grátis)</button>
+                </div>
+                <div class="space-y-2 text-sm px-1">
+                    <div class="flex justify-between text-gray-500"><span>Itens</span><span id="sub-val" class="font-bold text-gray-800">R$ 0,00</span></div>
+                    <div class="flex justify-between text-green-600 font-bold"><span>Desconto Fidelidade</span><span id="desc-val">R$ 0,00</span></div>
+                    <div class="flex justify-between font-black text-2xl text-amber-900 border-t pt-2 mt-2"><span>Total</span><span id="total-val">R$ 0,00</span></div>
+                </div>
+                <button onclick="finalizarPedido()" class="w-full py-4 bg-amber-800 text-white rounded-2xl font-bold uppercase tracking-widest active:scale-95 transition shadow-lg">Finalizar Compra</button>
+            </div>
+        </div>
+
+        <nav class="bg-white border-t h-20 flex justify-around items-center z-50">
+            <button onclick="navegar('home')" class="nav-btn flex flex-col items-center flex-1 text-amber-800">
+                <span class="text-xl">🏠</span><span class="text-[9px] font-bold uppercase mt-1">Fazenda</span>
+            </button>
+            <button onclick="navegar('busca')" class="nav-btn flex flex-col items-center flex-1 text-gray-400">
+                <span class="text-xl">🔍</span><span class="text-[9px] font-bold uppercase mt-1">Busca</span>
+            </button>
+            <button onclick="navegar('pedidos')" class="nav-btn flex flex-col items-center flex-1 text-gray-400">
+                <span class="text-xl">📦</span><span class="text-[9px] font-bold uppercase mt-1">Pedidos</span>
+            </button>
+            <button onclick="navegar('sacola')" class="nav-btn flex flex-col items-center flex-1 text-gray-400 relative">
+                <span class="text-xl">🛒</span><span class="text-[9px] font-bold uppercase mt-1">Carrinho</span>
+                <div id="badge" class="absolute top-0 right-4 bg-red-600 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center hidden font-bold">0</div>
+            </button>
+            <button class="flex flex-col items-center flex-1 text-gray-400 cursor-default">
+                <span class="text-xl">👤</span><span class="text-[9px] font-bold uppercase mt-1">Conta</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        const imgOvoVermelho = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5NfhBCHEosBMis2Ue7GDbvLJBhUmAusoLsA&s";
+        const imgOvoBranco = "https://images.tcdn.com.br/img/img_prod/815630/ovo_plastico_no_4_p_ring_necks_loris_etc_3225_1_629c6002e0d6f6aaf120661ed7c3efb7.jpg";
+        const imgDuzia = "data:image/jpeg;base64,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";
+        const imgCartela = "https://phygital-files.mercafacil.com/armazem-maria/uploads/produto/ovos_vermelho_caipira_golden_gd_bdj_30un_160ea6dc-bec2-4eb0-a5dd-667b9b5dd77c.jpeg";
+
+        const produtos = [
+            { id: 1, nome: 'Ovo Vermelho Unitário', preco: 1.50, tipo: 'vermelho', img: imgOvoVermelho, ovos: 1 },
+            { id: 2, nome: 'Ovo Branco Unitário', preco: 1.20, tipo: 'branco', img: imgOvoBranco, ovos: 1 },
+            { id: 3, nome: 'Dúzia Especial (12un)', preco: 15.00, tipo: 'vermelho', img: imgDuzia, ovos: 12 },
+            { id: 4, nome: 'Cartela Família (30un)', preco: 39.00, tipo: 'vermelho', img: imgCartela, ovos: 30 }
+        ];
+
+        let carrinho = [];
+        let entregaEmCasa = true;
+
+        function navegar(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-amber-800', 'text-gray-400'));
+            if(event && event.currentTarget.classList.contains('nav-btn')) event.currentTarget.classList.replace('text-gray-400', 'text-amber-800');
+        }
+
+        function add(nome, preco, ovos) {
+            const item = carrinho.find(i => i.nome === nome);
+            if(item) item.qtd++;
+            else carrinho.push({ nome, preco: parseFloat(preco), qtd: 1, ovos: parseInt(ovos) });
+            atualizar();
+        }
+
+        function removerUm(nome) {
+            const item = carrinho.find(i => i.nome === nome);
+            if(item) {
+                item.qtd--;
+                if(item.qtd <= 0) carrinho = carrinho.filter(i => i.nome !== nome);
+            }
+            atualizar();
+        }
+
+        function limparCarrinho() { carrinho = []; atualizar(); }
+
+        function tipoEntrega(casa) {
+            entregaEmCasa = casa;
+            document.getElementById('opt-casa').className = casa ? 'flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition bg-white shadow text-amber-900 font-bold' : 'flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition text-gray-500';
+            document.getElementById('opt-fazenda').className = !casa ? 'flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition bg-white shadow text-amber-900' : 'flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition text-gray-500';
+            atualizar();
+        }
+
+        function atualizar() {
+            const lista = document.getElementById('itens-sacola');
+            lista.innerHTML = '';
+            
+            let totalOvosFisicos = 0;
+            let totalVolumeItens = 0;
+            let bruto = 0;
+
+            carrinho.forEach(i => {
+                bruto += (i.preco * i.qtd);
+                totalOvosFisicos += (i.ovos * i.qtd);
+                totalVolumeItens += i.qtd; 
+
+                lista.innerHTML += `
+                    <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="flex-1">
+                            <p class="font-bold text-xs">${i.nome}</p>
+                            <p class="text-[10px] text-gray-400">R$ ${i.preco.toFixed(2)} | Total: ${i.ovos * i.qtd} ovos</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="removerUm('${i.nome}')" class="w-8 h-8 border rounded-lg bg-gray-50 text-xs font-bold">-</button>
+                            <span class="text-xs font-bold w-4 text-center">${i.qtd}</span>
+                            <button onclick="add('${i.nome}', ${i.preco}, ${i.ovos})" class="w-8 h-8 border rounded-lg bg-gray-50 text-xs font-bold">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            let perc = totalOvosFisicos >= 48 ? 0.10 : (totalOvosFisicos >= 24 ? 0.05 : 0);
+            let desc = bruto * perc;
+            let frete = (entregaEmCasa && carrinho.length > 0) ? 5 : 0;
+
+            document.getElementById('sub-val').innerText = `R$ ${bruto.toFixed(2)}`;
+            document.getElementById('desc-val').innerText = `- R$ ${desc.toFixed(2)} (${(perc*100).toFixed(0)}%)`;
+            document.getElementById('total-val').innerText = `R$ ${(bruto - desc + frete).toFixed(2)}`;
+            
+            
+            const badge = document.getElementById('badge');
+            badge.innerText = totalVolumeItens;
+            badge.classList.toggle('hidden', totalVolumeItens === 0);
+
+            
+            const barra = document.getElementById('barra-home');
+            if(barra) barra.style.width = (Math.min(totalOvosFisicos, 48) / 48 * 100) + '%';
+        }
+
+        function renderizar(filtro = 'todos') {
+            const gridBusca = document.getElementById('grid-produtos');
+            const gridHomePacotes = document.getElementById('grid-home-pacotes');
+            const gridHomeUnidades = document.getElementById('grid-home-unidades');
+            
+            gridBusca.innerHTML = ''; 
+            if(gridHomePacotes) gridHomePacotes.innerHTML = '';
+            if(gridHomeUnidades) gridHomeUnidades.innerHTML = '';
+
+            produtos.forEach(p => {
+                if(filtro !== 'todos' && p.tipo !== filtro) return;
+
+                const card = `
+                    <div class="bg-white border rounded-2xl overflow-hidden shadow-sm flex flex-col">
+                        <img src="${p.img}" class="w-full h-24 object-cover">
+                        <div class="p-3 flex flex-col items-center">
+                            <h4 class="text-[10px] font-bold text-center h-8 flex items-center leading-tight">${p.nome}</h4>
+                            <p class="text-amber-700 font-bold text-sm mt-1">R$ ${p.preco.toFixed(2)}</p>
+                            <button onclick="add('${p.nome}', ${p.preco}, ${p.ovos})" class="mt-3 w-full bg-amber-800 text-white py-2 rounded-xl text-[9px] font-bold uppercase active:bg-amber-900 transition shadow">Adicionar</button>
+                        </div>
+                    </div>
+                `;
+
+                gridBusca.innerHTML += card;
+
+                if(filtro === 'todos') {
+                    if(p.ovos > 1) {
+                        gridHomePacotes.innerHTML += `
+                            <div class="bg-white border rounded-2xl overflow-hidden shadow-sm mb-2 flex">
+                                <img src="${p.img}" class="w-24 h-24 object-cover">
+                                <div class="p-4 flex flex-1 justify-between items-center">
+                                    <div><p class="font-bold text-sm">${p.nome}</p><p class="text-[10px] text-gray-400">Pacote Econômico</p></div>
+                                    <button onclick="add('${p.nome}', ${p.preco}, ${p.ovos})" class="bg-amber-800 text-white px-4 py-2 rounded-xl text-xs font-bold shadow">R$ ${p.preco.toFixed(2)}</button>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        gridHomeUnidades.innerHTML += card;
+                    }
+                }
+            });
+        }
+
+        function filtrar(t) {
+            renderizar(t);
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.replace('bg-amber-800', 'bg-gray-100');
+                b.classList.replace('text-white', 'text-gray-500');
+            });
+            event.currentTarget.classList.replace('bg-gray-100', 'bg-amber-800');
+            event.currentTarget.classList.replace('text-gray-500', 'text-white');
+        }
+
+        function finalizarPedido() {
+            if (carrinho.length === 0) {
+                alert("Sua cesta está vazia!");
+                return;
+            }
+
+            const listaPedidos = document.getElementById('pedidos-lista');
+            const dataAtual = new Date().toLocaleDateString('pt-BR');
+            const idPedido = Math.floor(Math.random() * 9000) + 1000;
+            const resumoItens = carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ');
+            const valorFinal = document.getElementById('total-val').innerText;
+
+            const novoPedidoHTML = `
+                <div class="bg-white p-4 rounded-2xl border shadow-sm border-l-4 border-l-amber-500 animate-pulse">
+                    <div class="flex justify-between items-start mb-1">
+                        <p class="font-bold text-sm">${resumoItens}</p>
+                        <span class="text-amber-600 text-[9px] font-bold uppercase">Processando</span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mb-3 uppercase">Pedido #${idPedido} • ${dataAtual}</p>
+                    <p class="text-xs font-bold text-amber-900 mb-2">Total: ${valorFinal}</p>
+                    <button class="w-full py-2 bg-stone-100 text-stone-600 rounded-xl text-[10px] font-bold border hover:bg-stone-200">ACOMPANHAR</button>
+                </div>
+            `;
+
+            listaPedidos.insertAdjacentHTML('afterbegin', novoPedidoHTML);
+            alert("Pedido confirmado! Redirecionando para o histórico...");
+            limparCarrinho();
+            navegar('pedidos');
+        }
+
+        renderizar();
+    </script>
+</body>
+</html>
